@@ -39,7 +39,7 @@ class GUI:
         self.vi = Checkbutton(root, text = "Kas sul on tihedad juuksed või sul on lokid?", variable=self.vi_val)
         self.vi.grid(row=4, column = 0)
 
-        self.sub = Button(root, text="Kalkuleeri", command= self.kalk)
+        self.sub = Button(root, text="Kalkuleeri", command= self.getcalendar)
         self.sub.grid(row=5,column = 0)
 
     def kalk(self):
@@ -53,15 +53,15 @@ class GUI:
             p = p+1
         if self.brown_val.get() == 1:
             p = 2
-        popupmsg(("Maksimaalselt tohib juukseid pesta "+(str(p))+"x nädalas (kui see tundub vähe siis vaata kaasa antud tekst faili soovitustega)"))
+       # popupmsg(("Maksimaalselt tohib juukseid pesta "+(str(p))+"x nädalas (kui see tundub vähe siis vaata kaasa antud tekst faili soovitustega)"))
         return p
-"""
+
     def getcalendar(self):
         self.SCOPES = "https://www.googleapis.com/auth/calendar"
-        self.store = file.Storage('credentials.json')
+        self.store = file.Storage('secret_token.json')
         self.creds = self.store.get()
         if not self.creds or self.creds.invalid:
-            self.flow = client.flow_from_clientsecrets('client_secret.json', self.SCOPES)
+            self.flow = client.flow_from_clientsecrets('credentials.json', self.SCOPES)
             self.creds = tools.run_flow(self.flow, self.store)
         self.service = build('calendar', 'v3', http=self.creds.authorize(Http()))
         self.now = datetime.datetime.utcnow()
@@ -72,7 +72,16 @@ class GUI:
         self.events_result = self.service.events().list(calendarId='primary', timeMin=self.now,
                                                         timeMax=self.now_week, singleEvents=True,
                                                         orderBy='startTime').execute()
-"""
+        a = (self.events_result.get("items", []))
+        for i in a:
+            print(i["start"])
+
+    def createevent(self):
+        pass #loob eventi ette entud väärtustel
+
+    def kuhulisa(self):
+        pass #Kunas pesta pmst et kuhu lisada event peaks olema maksimaalselt 36 tundi enne tähtsat eventi ja kui on trenn siis event läheb kirja kohe peale trenni
+
 
 root = Tk()
 gui = GUI(root)
