@@ -39,12 +39,19 @@ class GUI:
         self.vi = Checkbutton(root, text = "Kas sul on tihedad juuksed või sul on lokid?", variable=self.vi_val)
         self.vi.grid(row=4, column = 0)
 
+        Label(root, text="Mitme päeva jaoks on vaja kalkulatsioon teha?").grid(row=5,column=0)
+        
+        self.calctime = Entry()
+        self.calctime.grid(row=6, column=0)
+        
         self.sub = Button(root, text="Kalkuleeri", command= self.getcalendar)
-        self.sub.grid(row=5,column = 0)
+        self.sub.grid(row=7,column = 0)
+
+        Button(root, text="SITANE", command=self.createevent).grid(row=8, column=0)
 
     def kalk(self):
         p = 4
-
+        #fsdsdjsdhfsdf 13. self.createevent(self)
         if self.varv_val.get() == 1:
             p = p-1
         if self.kuiv_val.get() == 1:
@@ -57,6 +64,8 @@ class GUI:
         return p
 
     def getcalendar(self):
+        
+    
         self.SCOPES = "https://www.googleapis.com/auth/calendar"
         self.store = file.Storage('secret_token.json')
         self.creds = self.store.get()
@@ -75,9 +84,38 @@ class GUI:
         a = (self.events_result.get("items", []))
         for i in a:
             print(i["start"])
+        print(a)
+    
+    def createevent(self): #starttime endtime
+        event = {
+          'summary': 'Pese juukseid šampooniga.',
+          'colorId': '11',
+          'description': 'Nüüd on aeg, pesta juukseid šampooniga.',
+          'start': {
+            'dateTime': '2018-12-12T00:00:00+02:00',
+            'timeZone': 'UTC+2:00',
+          },
+          'end': {
+            'dateTime': '2018-12-13T00:00:00+02:00',
+            'timeZone': 'UTC+2:00',
+          },
+          'recurrence': [
+            'RRULE:FREQ=DAILY;COUNT=1'
+          ]
+        }
+        event = self.service.events().insert(calendarId='primary', body=event).execute()
 
-    def createevent(self):
-        pass #loob eventi ette entud väärtustel
+        """
+'reminders': {
+            'useDefault': False,
+            'overrides': [
+              {'method': 'email', 'minutes': 24 * 60},
+              {'method': 'popup', 'minutes': 10},
+            ],
+          },
+
+          'location': '800 Howard St., San Francisco, CA 94103',
+        """
 
     def kuhulisa(self):
         pass #Kunas pesta pmst et kuhu lisada event peaks olema maksimaalselt 36 tundi enne tähtsat eventi ja kui on trenn siis event läheb kirja kohe peale trenni
