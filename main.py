@@ -49,23 +49,9 @@ class GUI:
 
         Button(root, text="SITANE", command=self.createevent).grid(row=8, column=0)
 
-    def kalk(self):
-        p = 4
-        #fsdsdjsdhfsdf 13. self.createevent(self)
-        if self.varv_val.get() == 1:
-            p = p-1
-        if self.kuiv_val.get() == 1:
-            p = p-1
-        if self.vi_val.get() == 1:
-            p = p+1
-        if self.brown_val.get() == 1:
-            p = 2
-       # popupmsg(("Maksimaalselt tohib juukseid pesta "+(str(p))+"x nädalas (kui see tundub vähe siis vaata kaasa antud tekst faili soovitustega)"))
-        return p
-
     def getcalendar(self):
         
-    
+        self.pikkus = self.kalk()
         self.SCOPES = "https://www.googleapis.com/auth/calendar"
         self.store = file.Storage('secret_token.json')
         self.creds = self.store.get()
@@ -82,21 +68,45 @@ class GUI:
                                                         timeMax=self.now_week, singleEvents=True,
                                                         orderBy='startTime').execute()
         a = (self.events_result.get("items", []))
+        self.sorted_dic_events = {}
+        colors = self.service.colors().get().execute()
+        ac = []
+        ab = []
         for i in a:
-            print(i["start"])
-        print(a)
-    
+            if i["colorId"] == '3':
+                ac.append(i["start"]["dateTime"][0:10])
+                self.sorted_dic_events["main_event"] = ac
+            if i["colorId"] == '2':
+                ab.append(i["end"]["dateTime"][0:10])
+                self.sorted_dic_events["trenn"] = ab
+
+        self.kuhulisa_nonmain()
+
+    def kalk(self):
+        p = 4
+        #fsdsdjsdhfsdf 13. self.createevent(self)
+        if self.varv_val.get() == 1:
+            p = p-1
+        if self.kuiv_val.get() == 1:
+            p = p-1
+        if self.vi_val.get() == 1:
+            p = p+1
+        if self.brown_val.get() == 1:
+            p = 2
+       # popupmsg(("Maksimaalselt tohib juukseid pesta "+(str(p))+"x nädalas (kui see tundub vähe siis vaata kaasa antud tekst faili soovitustega)"))
+        return p
+
     def createevent(self): #starttime endtime
         event = {
           'summary': 'Pese juukseid šampooniga.',
           'colorId': '11',
           'description': 'Nüüd on aeg, pesta juukseid šampooniga.',
           'start': {
-            'dateTime': '2018-12-12T00:00:00+02:00',
+            'dateTime': self.start_time,
             'timeZone': 'UTC+2:00',
           },
           'end': {
-            'dateTime': '2018-12-13T00:00:00+02:00',
+            'dateTime': self.end_time,
             'timeZone': 'UTC+2:00',
           },
           'recurrence': [
@@ -105,20 +115,49 @@ class GUI:
         }
         event = self.service.events().insert(calendarId='primary', body=event).execute()
 
-        """
-'reminders': {
-            'useDefault': False,
-            'overrides': [
-              {'method': 'email', 'minutes': 24 * 60},
-              {'method': 'popup', 'minutes': 10},
-            ],
-          },
-
-          'location': '800 Howard St., San Francisco, CA 94103',
-        """
 
     def kuhulisa(self):
         pass #Kunas pesta pmst et kuhu lisada event peaks olema maksimaalselt 36 tundi enne tähtsat eventi ja kui on trenn siis event läheb kirja kohe peale trenni
+        """if main_üritus-trenn_aeg <= 36h:
+            return trenn_aeg_end
+        elif main_üritus-trenn_aeg > 36h:
+            #Pesta pigem 12h enne ürituse algust
+            if main_üritus_start - 12h == "clear":
+                return main_üritus_start -12"""
+
+    def kuhulisa_nonmain(self):
+        self.trennide_arv = len(self.sorted_dic_events["trenn"])
+        self.event_starts = []
+        self.event_ends = []
+        if self.trennide_arv == self.pikkus:
+            for item in self.sorted_dic_events["trenn"]:
+                self.event_starts.append(item+"T00:00:00+02:00")
+                date2 = datetime.datetime.strptime(item,"%Y-%m-%d")
+                uus_date2 = date2 + datetime.timedelta(days=1)
+                uuem_date2 = uus_date2.strftime("%Y-%m-%dT00:00:00+02:00")
+                self.event_ends.append(uuem_date2)
+        elif self.trennide_arv < self.pikkus:
+            self.vahe = self.pikkus-self.trennide_arv
+            for i in range(1,self.vahe+1):
+                asdf = self.sorted_dic_events["trenn"][-i]
+                date = datetime.datetime.strptime(asdf,"%Y-%m-%d")
+                uus_date = date + datetime.timedelta(days=3)
+                uus_date3 = uus_date + datetime.timedelta(days=1)
+                uuem_date = uus_date.strftime("%Y-%m-%dT00:00:00+02:00")
+                uuem_date3 = uus_date3.strftime("%Y-%m-%dT00:00:00+02:00")
+                self.event_starts.append(uuem_date)
+                self.event_ends.append(uuem_date3)
+            for item in self.sorted_dic_events["trenn"]:
+                self.event_starts.append(item+"T00:00:00+02:00")
+                date4 = datetime.datetime.strptime(item, "%Y-%m-%d")
+                uus_date4 = date4 + datetime.timedelta(days=1)
+                uuem_date4 = uus_date4.strftime("%Y-%m-%dT00:00:00+02:00")
+                self.event_ends.append(uuem_date4)
+        print(self.event_starts)
+        print(self.event_ends)
+
+
+
 
 
 root = Tk()
