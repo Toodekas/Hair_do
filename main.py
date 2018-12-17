@@ -4,6 +4,7 @@ from googleapiclient.discovery import *
 from httplib2 import Http
 from oauth2client import file, client, tools
 import datetime
+import os
 
 def popupmsg(msg):
     popup = Tk()
@@ -18,37 +19,42 @@ def popupmsg(msg):
 class GUI:
     def __init__(self,root):
         self.root = root
-        root.title("HairDO")
+        self.root.configure(background="gray")
+        self.optionsframe = LabelFrame(self.root, text="Kalkulatsiooni valikud", bd=3, bg="gray", fg="blue", font=("Helvetica 9 bold"))
+        self.buttonframe = Canvas(self.root)
+        root.title("HairDo")
 
-        self.info = Label(root,text="See on barebones versioon, disabled on Google Calendar API, kunas update disabled some features")
-        self.info.grid(row = 0, column = 0)
+        Label(self.root, text="HairDo", font=("Helvetica 18 bold"), fg="white",background="gray28", width=27).grid(row=0, column=0, columnspan=2)
 
         self.varv_val = IntVar()
-        self.varv = Checkbutton(root, text = "Kas sul on juuksed värvitud hetkel?", variable = self.varv_val)
-        self.varv.grid(row=1, column = 0)
+        self.varv = Checkbutton(self.optionsframe, text = "Kas sul on juuksed värvitud hetkel?", variable = self.varv_val, bg="gray")
+        self.varv.grid(row=0, column = 0, sticky=W)
 
         self.brown_val = IntVar()
-        self.brown = Checkbutton(root, text = "Naturaalne brünett?", variable = self.brown_val)
-        self.brown.grid(row = 2, column = 0)
+        self.brown = Checkbutton(self.optionsframe, text = "Naturaalne brünett?", variable = self.brown_val, bg="gray")
+        self.brown.grid(row = 1, column = 0, sticky=W)
 
         self.kuiv_val = IntVar()
-        self.kuiv = Checkbutton(root, text="Kas sul on kuivad juuksed", variable=self.kuiv_val)
-        self.kuiv.grid(row = 3, column = 0)
+        self.kuiv = Checkbutton(self.optionsframe, text="Kas sul on kuivad juuksed", variable=self.kuiv_val, bg="gray")
+        self.kuiv.grid(row = 2, column = 0, sticky=W)
 
         self.vi_val = IntVar()
-        self.vi = Checkbutton(root, text = "Kas sul on tihedad juuksed või sul on lokid?", variable=self.vi_val)
-        self.vi.grid(row=4, column = 0)
+        self.vi = Checkbutton(self.optionsframe, text = "Kas sul on tihedad juuksed või sul on lokid?", variable=self.vi_val, bg="gray")
+        self.vi.grid(row=3, column = 0,sticky=W)
 
-        Label(root, text="Mitme päeva jaoks on vaja kalkulatsioon teha?").grid(row=5,column=0)
+        self.optionsframe.grid(row=1, column=0)
         
-        self.calctime = Entry()
-        self.calctime.grid(row=6, column=0)
+        self.sub = Button(self.buttonframe, text="Logi sisse", width=12, command= self.getcalendar, fg="white", bg="gray28", font=("Helvetica 9 bold"))
+        self.sub.grid(row=0,column = 0)
+
+        Button(self.buttonframe, text="Logi välja", width=12, command=self.rm_cred, fg="white", bg="gray28", font=("Helvetica 9 bold")).grid(row=1, column=0)
+
+        Button(self.buttonframe, text="Lisa eventid", width=12,command=self.kuhulisa_nonmain, fg="white", bg="gray28", font=("Helvetica 9 bold")).grid(row=2, column=0)
+
+        self.buttonframe.grid(row=1, column=1)
+
+        Label(text="NB! Sa pead ennem sisse logima, kui evente üritad lisada!", bg="gray").grid(row=2, column=0, columnspan=2)
         
-        self.sub = Button(root, text="Kalkuleeri", command= self.getcalendar)
-        self.sub.grid(row=7,column = 0)
-
-        Button(root, text="SITANE", command=self.createevent).grid(row=8, column=0)
-
     def getcalendar(self):
         
         self.pikkus = self.kalk()
@@ -80,8 +86,6 @@ class GUI:
                 ab.append(i["end"]["dateTime"][0:10])
                 self.sorted_dic_events["trenn"] = ab
 
-        self.kuhulisa_nonmain()
-
     def kalk(self):
         p = 4
         #fsdsdjsdhfsdf 13. self.createevent(self)
@@ -96,17 +100,17 @@ class GUI:
        # popupmsg(("Maksimaalselt tohib juukseid pesta "+(str(p))+"x nädalas (kui see tundub vähe siis vaata kaasa antud tekst faili soovitustega)"))
         return p
 
-    def createevent(self): #starttime endtime
+    def createevent(self, start_time, end_time): #starttime endtime 2015-05-28T09:00:00-07:00
         event = {
           'summary': 'Pese juukseid šampooniga.',
           'colorId': '11',
           'description': 'Nüüd on aeg, pesta juukseid šampooniga.',
           'start': {
-            'dateTime': self.start_time,
+            'dateTime': start_time,
             'timeZone': 'UTC+2:00',
           },
           'end': {
-            'dateTime': self.end_time,
+            'dateTime': end_time,
             'timeZone': 'UTC+2:00',
           },
           'recurrence': [
@@ -155,7 +159,20 @@ class GUI:
                 self.event_ends.append(uuem_date4)
         print(self.event_starts)
         print(self.event_ends)
+        for i in range(0, len(self.event_starts)):
+            self.createevent(self.event_starts[i], self.event_ends[i])
 
+    def rm_cred(self):
+        """
+        try:
+            os.remove("credentials.json")
+        except:
+            print("No file such as credentials.json!")
+            """
+        try:
+            os.remove("secret_token.json")
+        except:
+            print("No file such as secret_token.json!")
 
 
 
