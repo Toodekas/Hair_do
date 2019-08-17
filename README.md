@@ -8,8 +8,7 @@ The way to run it is:
 3) run this command in the library using pip
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 4) run main.py
-5) a window with your google login should come up (login)
-6) it will add a few events onto the days that you should wash your hair
+
 
 
 Issues and possible future fixes:
