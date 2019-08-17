@@ -3,7 +3,7 @@ Python program that takes events from Google calendar and places events on days 
 Currently it only fills out the whole week with days you should/can wash your hair
 
 The way to run it is:
-1) make sure you have downloaded python
+1) make sure you have python installed
 2) have installed pip
 3) run this command in the library using pip
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
