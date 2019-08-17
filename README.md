@@ -4,10 +4,10 @@ Currently it only fills out the whole week with days you should/can wash your ha
 
 The way to run it is:
 1) make sure you have python installed
-2) have installed pip
+2) have pip installed
 3) run this command in the library using pip
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-4) run the main.py code
+4) run main.py
 5) a window with your google login should come in
 
 
